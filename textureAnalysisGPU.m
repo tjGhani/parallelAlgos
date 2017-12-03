@@ -26,15 +26,6 @@ function compiledFeatures = textureAnalysisGPU(bwLung, original, depth)
     allPatches(allPatches==1) = NaN;
     allPatchesGPU = gpuArray(allPatches);
 	
-	%coordinates = zeros(size(allPatches,2),2);
-%     coordinates = zeros(size(allPatchesGPU,2),2);
-% 	m=1;
-% 	for j=patchMid:jEnd
-% 		for i=patchMid:iEnd
-% 			coordinates(m,:) = [i j];
-% 			m=m+1;
-% 		end
-% 	end
 	
 	[r c] = find(isnan(allPatchesGPU));
 	patches = gather(allPatchesGPU);
@@ -47,7 +38,7 @@ function compiledFeatures = textureAnalysisGPU(bwLung, original, depth)
 
 	f1 = 'image';
 	f2 = 'depth';
-	f3 = 'glcmStats';
+	f3 = 'svd';
 	f4 = 'dct';
 	f5 = 'runlength';
 	f6 = 'class';
@@ -60,15 +51,17 @@ function compiledFeatures = textureAnalysisGPU(bwLung, original, depth)
 		for i=1:size(patches,2)
 			reshapedPatchGPU = gpuArray(reshape(patches(:,i),patchSize,patchSize));
 
-			glcm = graycomatrix(uint8(reshapedPatchGPU*255), 'NumLevels', 16);
-			stats = graycoprops(glcm, {'Contrast', 'Correlation', 'Energy', 'Homogeneity'});
+			%glcm = graycomatrix(uint8(reshapedPatchGPU*255), 'NumLevels', 16);
+			%stats = graycoprops(glcm, {'Contrast', 'Correlation', 'Energy', 'Homogeneity'});
 			%statistics(:) = [stats.Energy, stats.Contrast, stats.Correlation, stats.Homogeneity, entropy(uint8(reshapedPatch*255))];
+
+			[U S V] = svd(reshapedPatchGPU);
 
 			%[rl(1),rl(2),rl(3),rl(4),rl(5),rl(6),rl(7)] = glrlm(reshapedPatch,16,ones(patchSize));
             %[a b c d e f g] = glrlm(reshapedPatchGPU,16,ones(patchSize));
             [a b c d e f g] = [ 0 0 0 0 0 0 0 ];
 			%textures{i} = patch;
-			compiledFeatures(i) = struct(f1, reshapedPatchGPU, f2, depth, f3, [stats.Energy, stats.Contrast, stats.Correlation, stats.Homogeneity, entropy(uint8(reshapedPatchGPU*255))], f4, NaN, f5, [a b c d e f g]);
+			compiledFeatures(i) = struct(f1, reshapedPatchGPU, f2, depth, f3, [U S V], f4, NaN, f5, [a b c d e f g]);
 			%features(i,:) = cat(2, statistics(1), statistics(2), statistics(3), statistics(4), statistics(5), rl(1), rl(2), rl(3), rl(4), rl(5), rl(6), rl(7));
 			%features(i,:) = cat(2, statistics(1), statistics(2), statistics(3), statistics(4), statistics(5));
 		end
