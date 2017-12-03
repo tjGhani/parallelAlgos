@@ -33,7 +33,8 @@ function arrSlice =  cadProcessing(workingDir, first, last)
         [detectedBH blackHole blackBoundary blackArea] = detectBlackHoles(lungWindow, originalOnWhite);
 		[detectedWM whiteMass whiteBoundary whiteArea] = whiteMassDetection(lungWindow, originalOnBlack);
         %textureFeatures = textureAnalysis(bwLungMed, lungWindow, depth);
-        textureFeatures = textureAnalysisGPU(bwLungMed, lungWindow, depth);
+        %textureFeatures = textureAnalysisGPU(bwLungMed, lungWindow, depth);
+        textureFeatures = textureAnalysisSerial(bwLungMed, lungWindow, depth);
 
 		imagesCat = cat(3, lungWindow, mediastinal);
         %index = i - first + 1;
