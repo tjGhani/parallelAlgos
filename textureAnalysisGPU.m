@@ -55,9 +55,14 @@ function compiledFeatures = textureAnalysisGPU(bwLung, original, depth)
 			%glcm = graycomatrix(uint8(reshapedPatchGPU*255), 'NumLevels', 16);
 			%stats = graycoprops(glcm, {'Contrast', 'Correlation', 'Energy', 'Homogeneity'});
 			%statistics(:) = [stats.Energy, stats.Contrast, stats.Correlation, stats.Homogeneity, entropy(uint8(reshapedPatch*255))];
+			rpHist = histogram(reshapedPatchGPU);
+			rpGaus = imgaussfilt(reshapedPatchGPU);
+			rpLaplace = imfilter(reshapedPatchGPU, fspecial('laplacian', 0.8));
+			[rpFirstDerX rpFirstDerY] = gradient(reshapedPatchGPU);
+			[rpSecDerX rpDerYX] = gradient(rpFirstDerX);
+			[rpDerXY rpSecDerY] = gradient(rpFirstDerY);
 
 			[U S V] = svd(reshapedPatchGPU);
-            histFeature = histogram(reshapedPatchGPU);
             
             
             %gather(reshapedPatchGPU);
