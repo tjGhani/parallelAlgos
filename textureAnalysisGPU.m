@@ -67,37 +67,37 @@ function compiledFeatures = textureAnalysisGPU(bwLung, original, depth)
             rpSecYHist = histogram(rpSecDerY,256);
             filteredTextureHist = cat(1, rpHist, rpGausHist, rpLaplaceHist, rpFirstXHist, rpFirstYHist, rpSecXHist, rpSecYHist);
             
-            stats = zeros(4,size(filteredTextureHist,1))
+            stats = zeros(4,size(filteredTextureHist,1));
             
-            for k=1:4           %iterating through stats: mean, std2, skew, kurtosis, entropy
+            for j=1:4           %iterating through stats: mean, std2, skew, kurtosis, entropy
                 for k=1:size(filteredTextureHist,1)
-                    switch i
+                    switch j
                         case 1
                             meanBin = zeros(1,256);
                             for m=1:256
                                 meanBin(m) = mean(filteredTextureHist(k).Values(m)*(filteredTextureHist(k).BinWidth*m));
                             end
-                            stats(i, k) = mean(meanBin);
+                            stats(j, k) = mean(meanBin);
                         case 2
                             stdBin = zeros(1,256);
                             for m=1:256
                                 stdBin(m) = std2(filteredTextureHist(k).Values(m)*(filteredTextureHist(k).BinWidth*m));
                             end
-                            stats(i, k) = std2(stdBin);
+                            stats(j, k) = std2(stdBin);
                         case 3
                             skewBin = zeros(1,256);
                             for m=1:256
                                 skewBin(m) = (((filteredTextureHist(k).Values(m)*(filteredTextureHist(k).BinWidth*m))-stats(1,k))/stats(2,k))^3;
                             end
-                            stats(i, k) = sum(skewBin)/patchSize^2;
+                            stats(j, k) = sum(skewBin)/patchSize^2;
                         case 4
                             kurtosisBin = zeros(1,256);
                             for m=1:256
                                 kurtosisBin(m) = (((filteredTextureHist(k).Values(m)*(filteredTextureHist(k).BinWidth*m))-stats(1,k))/stats(2,k))^4 - 3;
                             end
-                            stats(i, k) = sum(kurtosisBin)/patchSize^2;
+                            stats(j, k) = sum(kurtosisBin)/patchSize^2;
                         %case 5
-                            %stats(i, k) = 'entropy';
+                            %stats(j, k) = 'entropy';
                     end
                 end
             end
