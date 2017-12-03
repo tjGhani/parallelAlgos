@@ -55,15 +55,23 @@ function compiledFeatures = textureAnalysisSerial(bwLung, original, depth)
 			%statistics(:) = [stats.Energy, stats.Contrast, stats.Correlation, stats.Homogeneity, entropy(uint8(reshapedPatch*255))];
             textureHistos(1).name = 'rpHist';
 			[textureHistos(1).values textureHistos(1).binEdges] = histcounts(reshapedPatch);
-			rpGausHist = histogram(imgaussfilt(reshapedPatch));
-			rpLaplaceHist = histogram(imfilter(reshapedPatch, fspecial('laplacian', 0.8)));
-			[rpFirstDerX rpFirstDerY] = gradient(reshapedPatch);
+            textureHistos(2).name = 'rpGausHist';
+			[textureHistos(2).values textureHistos(2).binEdges] = histcounts(imgaussfilt(reshapedPatch));
+            textureHistos(3).name = 'rpLaplaceHist';
+            [textureHistos(3).values texureHistos(3).binEdges] = histcounts(imfilter(reshapedPatch, fspecial('laplacian', 0.8)));
+			
+            [rpFirstDerX rpFirstDerY] = gradient(reshapedPatch);
 			[rpSecDerX rpDerYX] = gradient(rpFirstDerX);
 			[rpDerXY rpSecDerY] = gradient(rpFirstDerY);
-            rpFirstXHist = histogram(rpFirstDerX,256);
-            rpFirstYHist = histogram(rpFirstDerY,256);
-            rpSecXHist = histogram(rpSecDerX,256);
-            rpSecYHist = histogram(rpSecDerY,256);
+            
+            textureHistos(4).name = 'rpFirstXHist';
+            [textureHistos(4).values texureHistos(4).binEdges] = histogram(rpFirstDerX,256);
+            textureHistos(5).name = 'rpFirstYHist';
+            [textureHistos(5).values texureHistos(5).binEdges] = histogram(rpFirstDerY,256);
+            textureHistos(6).name = 'rpSecXHist';
+            [textureHistos(6).values texureHistos(6).binEdges] = histogram(rpSecDerX,256);
+            textureHistos(7).name = 'rpSecYHist';
+            [textureHistos(7).values texureHistos(7).binEdges] = histogram(rpSecDerY,256);
             %filteredTextureHist = cat(1, rpHist, rpGausHist, rpLaplaceHist, rpFirstXHist, rpFirstYHist, rpSecXHist, rpSecYHist);
             %filteredTextureHist = {rpHist, rpGausHist, rpLaplaceHist, rpFirstXHist, rpFirstYHist, rpSecXHist, rpSecYHist};
             
@@ -75,25 +83,25 @@ function compiledFeatures = textureAnalysisSerial(bwLung, original, depth)
                         case 1
                             meanBin = zeros(1,256);
                             for m=1:256
-                                meanBin(m) = mean(textureHistos(k).Values(m)*(textureHistos(k).BinWidth*m));
+                                meanBin(m) = mean(textureHistos(k).values(m)*(textureHistos(k).binEdges(m+1)));
                             end
                             stats(j, k) = mean(meanBin);
                         case 2
                             stdBin = zeros(1,256);
                             for m=1:256
-                                stdBin(m) = std2(textureHistos(k).Values(m)*(textureHistos(k).BinWidth*m));
+                                stdBin(m) = std2(textureHistos(k).values(m)*(textureHistos(k).binEdges(m+1)));
                             end
                             stats(j, k) = std2(stdBin);
                         case 3
                             skewBin = zeros(1,256);
                             for m=1:256
-                                skewBin(m) = (((textureHistos(k).Values(m)*(textureHistos(k).BinWidth*m))-stats(1,k))/stats(2,k))^3;
+                                skewBin(m) = (((textureHistos(k).values(m)*(textureHistos(k).binEdges(m+1)))-stats(1,k))/stats(2,k))^3;
                             end
                             stats(j, k) = sum(skewBin)/patchSize^2;
                         case 4
                             kurtosisBin = zeros(1,256);
                             for m=1:256
-                                kurtosisBin(m) = (((textureHistos(k).Values(m)*(textureHistos(k).BinWidth*m))-stats(1,k))/stats(2,k))^4 - 3;
+                                kurtosisBin(m) = (((textureHistos(k).values(m)*(textureHistos(k).binEdges(m+1)))-stats(1,k))/stats(2,k))^4 - 3;
                             end
                             stats(j, k) = sum(kurtosisBin)/patchSize^2;
                         %case 5
