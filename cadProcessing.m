@@ -17,7 +17,7 @@ function arrSlice =  cadProcessing(workingDir, first, last)
     img = dicomread(fullfile(workingDir, imagesDir, imageNames{1}));
     sizeofscan = last-first;
 
-    parfor i = first:last
+    for i = first:last
 
         original = dicomread(fullfile(workingDir, imagesDir, imageNames{i}));
 		[original lungWindow mediastinal] = preprocessing(original);

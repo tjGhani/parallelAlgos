@@ -54,31 +54,31 @@ function compiledFeatures = textureAnalysisSerial(bwLung, original, depth)
 			%stats = graycoprops(glcm, {'Contrast', 'Correlation', 'Energy', 'Homogeneity'});
 			%statistics(:) = [stats.Energy, stats.Contrast, stats.Correlation, stats.Homogeneity, entropy(uint8(reshapedPatch*255))];
             textureHistos(1).name = 'rpHist';
-			[textureHistos(1).values textureHistos(1).binEdges] = histcounts(reshapedPatch);
+			[textureHistos(1).values textureHistos(1).binEdges] = histcounts(reshapedPatch,256);
             textureHistos(2).name = 'rpGausHist';
-			[textureHistos(2).values textureHistos(2).binEdges] = histcounts(imgaussfilt(reshapedPatch));
+			[textureHistos(2).values textureHistos(2).binEdges] = histcounts(imgaussfilt(reshapedPatch),256);
             textureHistos(3).name = 'rpLaplaceHist';
-            [textureHistos(3).values texureHistos(3).binEdges] = histcounts(imfilter(reshapedPatch, fspecial('laplacian', 0.8)));
+            [textureHistos(3).values textureHistos(3).binEdges] = histcounts(imfilter(reshapedPatch, fspecial('laplacian', 0.8)),256);
 			
             [rpFirstDerX rpFirstDerY] = gradient(reshapedPatch);
 			[rpSecDerX rpDerYX] = gradient(rpFirstDerX);
 			[rpDerXY rpSecDerY] = gradient(rpFirstDerY);
             
             textureHistos(4).name = 'rpFirstXHist';
-            [textureHistos(4).values texureHistos(4).binEdges] = histogram(rpFirstDerX,256);
+            [textureHistos(4).values textureHistos(4).binEdges] = histcounts(rpFirstDerX,256);
             textureHistos(5).name = 'rpFirstYHist';
-            [textureHistos(5).values texureHistos(5).binEdges] = histogram(rpFirstDerY,256);
+            [textureHistos(5).values textureHistos(5).binEdges] = histcounts(rpFirstDerY,256);
             textureHistos(6).name = 'rpSecXHist';
-            [textureHistos(6).values texureHistos(6).binEdges] = histogram(rpSecDerX,256);
+            [textureHistos(6).values textureHistos(6).binEdges] = histcounts(rpSecDerX,256);
             textureHistos(7).name = 'rpSecYHist';
-            [textureHistos(7).values texureHistos(7).binEdges] = histogram(rpSecDerY,256);
+            [textureHistos(7).values textureHistos(7).binEdges] = histcounts(rpSecDerY,256);
             %filteredTextureHist = cat(1, rpHist, rpGausHist, rpLaplaceHist, rpFirstXHist, rpFirstYHist, rpSecXHist, rpSecYHist);
             %filteredTextureHist = {rpHist, rpGausHist, rpLaplaceHist, rpFirstXHist, rpFirstYHist, rpSecXHist, rpSecYHist};
             
-            stats = zeros(4,size(textureHistos,1))
+            stats = zeros(4,size(textureHistos,1));
             
             for j=1:4           %iterating through stats: mean, std2, skew, kurtosis, entropy
-                for k=1:size(textureHistos,1)
+                for k=1:size(textureHistos,2)
                     switch j
                         case 1
                             meanBin = zeros(1,256);
