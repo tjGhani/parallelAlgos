@@ -17,7 +17,7 @@ function arrSlice =  cadProcessing(workingDir, first, last)
     img = dicomread(fullfile(workingDir, imagesDir, imageNames{1}));
     sizeofscan = last-first;
 
-    for i = first:last
+    parfor i = first:last
 
         original = dicomread(fullfile(workingDir, imagesDir, imageNames{i}));
 		[original lungWindow mediastinal] = preprocessing(original);
@@ -33,9 +33,8 @@ function arrSlice =  cadProcessing(workingDir, first, last)
         [detectedBH blackHole blackBoundary blackArea] = detectBlackHoles(lungWindow, originalOnWhite);
 		[detectedWM whiteMass whiteBoundary whiteArea] = whiteMassDetection(lungWindow, originalOnBlack);
         %textureFeatures = textureAnalysis(bwLungMed, lungWindow, depth);
-        %textureFeatures = textureAnalysisGPU(bwLungMed, lungWindow, depth);
-        %textureFeatures = textureAnalysisSerial(bwLungMed, lungWindow, depth);
-        textureFeatures = textureAnalysisSerialv2(bwLungMed, lungWindow, depth);
+        textureFeatures = textureAnalysisGPU(bwLungMed, lungWindow, depth);
+        %textureFeatures = textureAnalysisSerialv2(bwLungMed, lungWindow, depth);
 
 		imagesCat = cat(3, lungWindow, mediastinal);
         %index = i - first + 1;
