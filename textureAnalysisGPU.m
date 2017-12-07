@@ -32,7 +32,7 @@ function compiledFeatures = textureAnalysisGPU(bwLung, original, depth)
     %clear('allPatchesGPU');
     patches = allPatches;
 	patches(:,c) = [];										% remove patches with non-lung white parts
-    patchesGPU = gpuArray(patches);
+    %patchesGPU = gpuArray(patches);
 	%size(patches,2)
 	%coordinates(c,:) = [];
 	%size(coordinates,1)
@@ -49,7 +49,7 @@ function compiledFeatures = textureAnalysisGPU(bwLung, original, depth)
 		compiledFeatures(1, patchesEnd) = struct(f1, zeros(patchSize), f2, NaN, f3, NaN, f4, NaN, f5, NaN);
 		
 		for i=1:size(patches,2)
-			reshapedPatchGPU = gpuArray(reshape(patchesGPU(:,i),patchSize,patchSize));
+			reshapedPatchGPU = gpuArray(reshape(patches(:,i),patchSize,patchSize));
             rpGaus = imgaussfilt(reshapedPatchGPU);
             rpLaplace = imfilter(reshapedPatchGPU, fspecial('laplacian',0.8));
             [rpFirstDerX rpFirstDerY] = gradient(reshapedPatchGPU);
@@ -70,6 +70,8 @@ function compiledFeatures = textureAnalysisGPU(bwLung, original, depth)
             R = corrcoef(reshapedPatchGPU);
             
 			compiledFeatures(i) = struct(f1, reshapedPatchGPU, f2, depth, f3, stats, f4, [U S V], f5, R);
+            
+            clear('reshapedPatchGPU', 'rpGaus', 'rpLaplace', 'rpFirstDerX', 'rpFirstDerY', 'rpSecDerX', 'rpDerYX', 'rpDerXY', 'rpSecDerY');
 		end
 	else
 		compiledFeatures(1) = struct(f1, zeros(patchSize), f2, NaN, f3, NaN, f4, NaN, f5, NaN);
